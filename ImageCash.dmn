@@ -1,0 +1,7 @@
+
+COIN_NAME="ImageCash"
+COIN_PATH="/usr/local/bin/"
+COIN_DAEMON="imgcashd"
+COIN_CLI="imgcash-cli"
+COIN_FOLDER="/root/.imgcashcore"
+COIN_CONFIG="imgcash.conf"
