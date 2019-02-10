@@ -1,0 +1,6 @@
+COIN_NAME="KittyCoin"
+COIN_PATH="/usr/local/bin/"
+COIN_DAEMON="kittycoind"
+COIN_CLI="kittycoind"
+COIN_FOLDER="/root/.kittycoin"
+COIN_CONFIG="kittycoin.conf"
