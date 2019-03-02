@@ -1,7 +1,7 @@
-COIN_NAME="imagecoin"             # Name of the coin
-COIN_PATH="/usr/local/bin/"        # NOT required parameter, location of the daemon and cli (only required if they're not in /usr/local/bin/ or /usr/bin/)
-COIN_DAEMON="ImageCoind"          # Name of the daemon
-COIN_CLI="ImageCoin-cli"          # Name of the cli
-COIN_FOLDER="/root/.imagecoincore"    # Folder where the conf file and blockchain is stored
-COIN_CONFIG="imagecoin.conf"      # Name of the conf file
-COIN_SERVICE="ImageCoin.service"  # NOT required parameter, if you have a service for the main node, add this parameter for the systemctlall and bootstrap commands
+COIN_NAME="imagecoin"
+COIN_PATH="/usr/local/bin/"
+COIN_DAEMON="ImageCoind"
+COIN_CLI="ImageCoin-cli"
+COIN_FOLDER="/root/.imagecoincore"
+COIN_CONFIG="imagecoin.conf"
+COIN_SERVICE="ImageCoin.service"
