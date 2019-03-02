@@ -1,0 +1,7 @@
+COIN_NAME="imagecoin"
+COIN_PATH="/usr/local/bin/"
+COIN_DAEMON="ImageCoind"
+COIN_CLI="ImageCoin-cli"
+COIN_FOLDER="/root/.imagecoincore"
+COIN_CONFIG="imagecoin.conf"
+COIN_SERVICE="ImageCoin.service"
