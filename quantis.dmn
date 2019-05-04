@@ -1,0 +1,6 @@
+COIN_NAME="quantisnet"
+COIN_PATH="/usr/local/bin/"
+COIN_DAEMON="quantisnetd"
+COIN_CLI="quantisnet-cli"
+COIN_FOLDER="/root/.quantisnetcore"
+COIN_CONFIG="quantisnet.conf"
