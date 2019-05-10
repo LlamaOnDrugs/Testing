@@ -1,0 +1,6 @@
+COIN_NAME="minnodes"
+COIN_PATH="/usr/local/bin/"
+COIN_DAEMON="minnodesd"
+COIN_CLI="minnodes-cli"
+COIN_FOLDER="/root/.minnodes"
+COIN_CONFIG="minnodes.conf"
