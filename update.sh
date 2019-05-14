@@ -2,7 +2,7 @@
 cd ~
 quantisnet-cli stop
 killall -9 quantisnetd
-cd /usr/local/bin
+cd /usr/local/
 
 rm quantisnetd quantisnet-cli
 
