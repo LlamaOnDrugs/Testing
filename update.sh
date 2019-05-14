@@ -5,7 +5,7 @@ killall -9 quantisnetd
 cd /usr/local/bin
 rm quantisnetd quantisnet-cli quantisnet-tx test_quantisnet quantisnet-qt
 
-read "Enter URL for new wallet .tar.gz:" VAR
+read "Enter URL" VAR
 
 wget VAR
 
