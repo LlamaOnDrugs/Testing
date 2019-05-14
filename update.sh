@@ -3,9 +3,6 @@ cd ~
 quantisnet-cli stop
 killall -9 quantisnetd
 cd /usr/local/bin
-read "Enter URL" VAR
-
-wget VAR
-
-
-
+url = https://github.com/LlamaOnDrugs/Quan/blob/master/quan-mn-update.sh
+filename = $(basename "$url")
+wget = "$url"
