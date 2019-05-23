@@ -1,0 +1,6 @@
+COIN_NAME="01coin"
+COIN_PATH="/root/zeroone"
+COIN_DAEMON="zerooned"
+COIN_CLI="zeroone-cli"
+COIN_FOLDER="/root/.zeroonecore"
+COIN_CONFIG="zeroone.conf"
