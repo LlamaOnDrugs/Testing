@@ -1,6 +1,10 @@
 #/bin/bash
 clear
 read -p "How many IPV6 IP Addresses do you need?" VAR
+
+echo "Current list of IP addresses"
+dupmn iplist
+
 read -p "Enter starting IPV6 Address: " IPVAR
 ipreq = $VAR
 ipstart = $IPVAR
