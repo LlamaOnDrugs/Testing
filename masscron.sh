@@ -7,7 +7,7 @@ srcdir=/root/.quantisnetcore
 sentdir=/sentinel/
   
 counter=1
-while [$counter =le $jobcount ]
+while [$counter -le $jobcount ]
 do
 
   #write out current crontab
