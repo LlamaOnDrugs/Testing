@@ -2,13 +2,16 @@
 clear
 read -p "How many IPV6 IP Addresses do you need?" VAR
 
+ipreq = "$VAR"
+
 echo "Current list of IP addresses"
 dupmn iplist
 
 read -p "Enter starting IPV6 Address: " IPVAR
-ipreq = "$VAR"
+
 iptrunc = ${IPVAR%:*}
 ipstart = ${IPVAR#:*}
+
 var2=${var%_*}
 
 echo "$iptrunc\n"
