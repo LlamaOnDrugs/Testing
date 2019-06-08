@@ -3,12 +3,13 @@ clear
 read -p "How many masternodes did you install?" VAR
 
 jobcount="$VAR"
-
+srcdir=/root/.quantisnetcore
+sentdir=/sentinel/
+  
 counter=1
 while [$counter =le $jobcount ]
 do
-  srcdir=/root/.quantisnetcore
-  sentdir=/sentinel/
+
   #write out current crontab
   crontab -l > mycron
   #echo new cron into cron file
