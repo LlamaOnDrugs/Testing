@@ -17,4 +17,5 @@ do
   #install new cron file
   crontab mycron
   rm mycron
+  ((counter++))
 done
