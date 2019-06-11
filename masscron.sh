@@ -13,7 +13,7 @@ do
   #write out current crontab
   crontab -l > mycron
   #echo new cron into cron file
-  echo "* * * * * cd ${srcdir}${counter}${sentdir} && ./venv/bin/python bin/sentinel.py >/dev/null 2>&1" >> mycron
+  echo "*/5 * * * * cd ${srcdir}${counter}${sentdir} && ./venv/bin/python bin/sentinel.py >/dev/null 2>&1" >> mycron
   #install new cron file
   crontab mycron
   rm mycron
