@@ -9,7 +9,7 @@ read -p "Enter starting IPV6 Address: " IPVAR
 
 iptrunc=${IPVAR%:*}":"
 
-counter=1
+counter=2
 while [ $counter -le $ipreq ]
 do
   dupmn install quantisnet -bootstrap -ip="$iptrunc$counter"
