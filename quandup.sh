@@ -9,7 +9,9 @@ read -p "Enter starting IPV6 Address: " IPVAR
 
 iptrunc=${IPVAR%:*}":"
 
-counter=2
+read -p "How many duplicates already installed?: " DUPNUM
+
+counter="$DUPNUM"
 while [ $counter -le $ipreq ]
 do
   dupmn install quantisnet -bootstrap -ip="$iptrunc$counter"
