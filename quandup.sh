@@ -15,6 +15,7 @@ counter="$DUPNUM"
 while [ $counter -le $ipreq ]
 do
   dupmn install quantisnet -bootstrap -ip="$iptrunc$counter"
+    quantisnet-cli-"$counter" stop
   ((counter++))
 done
 
