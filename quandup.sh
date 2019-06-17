@@ -9,7 +9,7 @@ read -p "Enter starting IPV6 Address: " IPVAR
 
 iptrunc=${IPVAR%:*}":"
 
-read -p "How many duplicates already installed?: " DUPNUM
+read -p "Number of First Node?: " DUPNUM
 
 counter="$DUPNUM"
 while [ $counter -le $ipreq ]
