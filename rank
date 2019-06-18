@@ -1,0 +1,188 @@
+#!/bin/bash
+
+~/.quantisnetcore/quantisnet-cli masternodelist full > ./tmp/cached_mnlistfull
+MN_LIST=$(cat ./tmp/cached_mnlistfull)
+myMN_IP_ADDR=$1
+  if [ -z $myMN_IP_ADDR ]; then
+    echo "usage: $0 <masternode address>"
+    exit -1
+fi
+
+IFS=. ; set  -- $* ; 
+myMN_DEC_ADDR=$(echo $(( ($1*256**3) + ($2*256**2) + ($3*256) + ($4) )) )
+IFS=""
+
+NOW_EPOCH=`date +%s`
+
+SORTED_MN_LIST=$(echo "$MN_LIST" | grep -w ENABLED | sed -e 's/[}|{]//' -e 's/"//g' -e 's/,//g' | grep -v ^$ | \
+awk ' \
+{
+    if ($7 == 0) {
+        TIME = ( $6 + '$NOW_EPOCH' - $5 )
+        print $_ " " TIME
+    }
+    else {
+        xxx = ("'$NOW_EPOCH'" - $7)
+        if ( xxx >= $6) {
+            TIME = ( $6 + '$NOW_EPOCH' - $5 )
+        }
+        else {
+            TIME = xxx
+        }
+        print $_ " " TIME
+    }
+}' |  sort -k10 -n) 
+
+echo "$SORTED_MN_LIST" | grep $myMN_IP_ADDR | awk '{print $9 " " $4}' > ./tmp/tmpfile
+while read LINE;
+do 
+	grep  "$LINE" | awk -F':' '{print $1}' 
+	IFS=. ; set -- $*	
+	IP_DEC=$(echo $(( ($1*256**3) + ($2*256**2) + ($3*256) + ($4) )) )
+	if [ $myMN_DEC_ADDR -eq $IP_DEC ]
+	then
+		PubKey=$(echo -e "$LINE"  | awk '{print $2}' | cut -c26-34 )
+		FullPubKey=$(echo -e "$LINE"  | awk '{print $2}')
+	fi
+done < ./tmp/tmpfile
+
+echo "$SORTED_MN_LIST" > ./tmp/mnlist_sorted
+quantisnet_USD=$(echo "scale=1;$(curl -Ls "https://chainz.cryptoid.info/quantisnet/api.dws?q=ticker.usd")/1" | bc -l  )
+myMN_BALANCE=$(echo "scale=1;$(curl -Ls "https://chainz.cryptoid.info/quantisnet/api.dws?q=getbalance&a=$FullPubKey")/1" | bc -l  )
+#всего активных мастернод ( в очереди (QUEUE) + в пуле (S.P.) )
+No_TOTAL_MN_IN_QUEUE=$(echo "$SORTED_MN_LIST" | wc -l)
+#позиция мастерноды  в очереди (уменьшается по мере движения к пулу)
+No_myMN_QUEUE_POSITION_from_end=$(echo "$SORTED_MN_LIST" | grep -B9999999 $PubKey | wc -l)
+myMN_VISIBLE=$((No_myMN_QUEUE_POSITION_from_end > 0))
+#число мастернод в пуле 
+No_POOL_LENGTH=$(( $No_TOTAL_MN_IN_QUEUE / 10 ))
+#число мастернод до входа в пул
+No_LENGTH_QUEUE_to_POOL=$(( $No_TOTAL_MN_IN_QUEUE - $No_POOL_LENGTH ))
+#мастернода  в пуле? да=1 нет =0
+myMN_IN_or_OUT_POOL=$(( $No_myMN_QUEUE_POSITION_from_end >= $No_LENGTH_QUEUE_to_POOL ))
+#позиция в очереди в процентах  
+percent=$(echo "scale=2;100*$No_myMN_QUEUE_POSITION_from_end/$No_LENGTH_QUEUE_to_POOL" | bc -l )
+#вся информация о MN в одной строке
+myMN_QUEUE_DATA=$(echo "$SORTED_MN_LIST" | grep $PubKey)
+#номер блока в котором была последняя выплата
+BLOCK_myMN_LAST_PAY=$(echo "$myMN_QUEUE_DATA" | awk '{print $8}')
+#мастернода первая в очереди перед входом в пул
+LAST_MN_IN_QUEUE_TO_POOL=$(echo "$SORTED_MN_LIST" |sed -n "$(( $No_LENGTH_QUEUE_to_POOL-1 ))"p | awk '{print $8, $9}')
+#блок с выплатой первой мастерноды в пуле 
+BLOCK_LAST_PAY_MN_FIRST_IN_POOL=$(sed -n "$No_LENGTH_QUEUE_to_POOL"p  ./tmp/mnlist_sorted | awk '{print $8}')
+#время в очереди мастерноды первой  в пуле
+TIME_first_in_poll_MN_IN_QUEUE=$(sed -n "$No_LENGTH_QUEUE_to_POOL"p  ./tmp/mnlist_sorted | awk '{print $10}')
+#среднее время формирования нового блока в centiseconds (1/100 сек)
+AVG_TIME_FIND_BLOCK=$(echo "$TIME_first_in_poll_MN_IN_QUEUE / $No_LENGTH_QUEUE_to_POOL * 100" | bc -l | awk '{print int($1+0.5)}') 
+TIME_myMN_LAST_PAY_to_POOL=$(echo "($BLOCK_LAST_PAY_MN_FIRST_IN_POOL  - $BLOCK_myMN_LAST_PAY) * $AVG_TIME_FIND_BLOCK / 100" | bc -l | awk '{print int($1+0.5)}')
+#юникс время последней выплаты myMN
+myMN_LAST_PAID_EPOCH=$(echo "$myMN_QUEUE_DATA" | awk '{print $7}')
+#публичный ключ myMN
+myMN_Pubkey=$(echo "$myMN_QUEUE_DATA" | awk '{print $4}')
+TIME_myMN_LAST_PAID_AGO=$((NOW_EPOCH - myMN_LAST_PAID_EPOCH))
+TIME_myMN_IN_QUEUE=$(echo "$myMN_QUEUE_DATA" | awk '{print $10}')
+myMN_LAST_SEEN_EPOCH=$(echo "$myMN_QUEUE_DATA" | awk '{print $5}')
+TIME_myMN_LAST_SEEN_AGO=$((NOW_EPOCH - myMN_LAST_SEEN_EPOCH))
+TIME_myMN_to_POOL=$(echo "($TIME_first_in_poll_MN_IN_QUEUE  - $TIME_myMN_IN_QUEUE)" | bc -l )
+	if [ $TIME_myMN_to_POOL -le 0 ]; then 
+		{ 
+		TIME_myMN_to_POOL=$(( -$TIME_myMN_to_POOL )) 
+		}
+	fi
+i=$TIME_myMN_to_POOL
+((sec=i%60, i/=60, min=i%60, i/=60, hrs=i%24, i/=24, day=i%24))
+TSTAMP_myMN_to_POOL=$(printf "%dd%02dh%02dm" $day $hrs $min)
+
+i=$TIME_myMN_LAST_PAID_AGO
+((sec=i%60, i/=60, min=i%60, i/=60, hrs=i%24, i/=24, day=i%24))
+timestampMNLPA=$(printf "%dd%02dh%02dm" $day $hrs $min)
+	if [ $BLOCK_myMN_LAST_PAY -le 0 ]; then 
+		{ 
+		timestampMNLPA=(Never/Unknown)
+		}
+	fi
+i=$TIME_myMN_IN_QUEUE
+((sec=i%60, i/=60, min=i%60, i/=60, hrs=i%24, i/=24, day=i%24))
+timestampMNTiQ=$(printf "%dd%02dh%02dm" $day $hrs $min)
+	if [ $TIME_myMN_LAST_PAY_to_POOL -le 0 ]; then 
+		{ 
+		TIME_myMN_LAST_PAY_to_POOL=$(( -$TIME_myMN_LAST_PAY_to_POOL )) 
+		}
+	fi
+i=$TIME_myMN_LAST_PAY_to_POOL
+((sec=i%60, i/=60, min=i%60, i/=60, hrs=i%24, i/=24, day=i%24))
+timestamp2=$(printf "%dd%02dh%02dm" $day $hrs $min)
+percent=$(echo "scale=0;100*$No_myMN_QUEUE_POSITION_from_end/$No_LENGTH_QUEUE_to_POOL" | bc -l )
+percent_int=$(echo "$percent" | awk '{print int($1+0.5)}')
+No_myMN_QUEUE_POSITION=$(( $No_TOTAL_MN_IN_QUEUE - $No_myMN_QUEUE_POSITION_from_end ))
+#Create ProgressBar		
+		let _done=($percent_int*5)/10
+		let _done_caret=($percent_int*6)/10
+		let _left=50-$_done
+		_done=$(printf "%${_done}s")
+		_done_caret=$(printf "%${_done_caret}s")
+		_left=$(printf "%${_left}s")
+if [ $myMN_VISIBLE -gt 0 ]; then
+	if	[ $myMN_IN_or_OUT_POOL -eq 0 ]; then 
+		#Masternode in queue to SELECTION POOL
+		{
+		echo ""
+		myvar=$(echo -e "Masternode $myMN_IP_ADDR") 
+ 		printf "in queue position $No_myMN_QUEUE_POSITION/$No_TOTAL_MN_IN_QUEUE\n$TSTAMP_myMN_to_POOL left till SELECTION!\n[${_done// /|}${_left// /:}|S.P.]\n${_done_caret// / } $percent%%\nLast payment was $timestampMNLPA ago.\nBALANCE=$myMN_BALANCE"D" 1quantisnet=$quantisnet_USD$" > ./tmp/nvar		
+		nvar=$(echo "$(cat ./tmp/nvar)")
+		}
+    else
+    	#Masternode in  SELECTION POOL
+    	let _done=50
+    	_done=$(printf "%${_done}s")
+    	echo ""
+		myvar=$(echo -e "Masternode $myMN_IP_ADDR")
+ 		printf "in selection pool for $TSTAMP_myMN_to_POOL.\n[${_done// /|}|S.P.]\n      WAIT FOR PAYMENT!\nLast payment was $timestampMNLPA ago.\nBALANCE=$myMN_BALANCE"D" 1quantisnet=$quantisnet_USD$" > ./tmp/nvar		   	
+ 		nvar=$(echo "$(cat ./tmp/nvar)")
+	fi
+else
+    echo "is not in masternode list"
+fi
+echo
+
+
+curl -s \
+  --form-string "token=qw45tua94n456c4ss6vp6iwkyj349d05n" \
+  --form-string "user=h3tt4geyd7w4244sfbws6abd23hd" \
+  --form-string "sound=bike" \
+  --form-string "title=$myvar" \
+  --form-string "message=$nvar" \
+  https://api.pushover.net/1/messages.json &> /dev/null
+  
+# echo "myMN_IP_ADDR = $myMN_IP_ADDR"
+# echo "myMN_DEC_ADDR = $myMN_DEC_ADDR"
+# echo ""
+# echo "No_TOTAL_MN_IN_QUEUE = $No_TOTAL_MN_IN_QUEUE"
+# echo "No_myMN_QUEUE_POSITION = $No_myMN_QUEUE_POSITION"
+# echo "No_POOL_LENGTH = $No_POOL_LENGTH"
+# echo "No_LENGTH_QUEUE_to_POOL = $No_LENGTH_QUEUE_to_POOL"
+# echo ""
+# echo "myMN_IN_or_OUT_POOL = $myMN_IN_or_OUT_POOL"
+# echo ""
+# echo "BLOCK_myMN_LAST_PAY = $BLOCK_myMN_LAST_PAY"
+# echo "BLOCK_LAST_PAY_MN_FIRST_IN_POOL = $BLOCK_LAST_PAY_MN_FIRST_IN_POOL"
+# echo ""
+# echo "AVG_TIME_FIND_BLOCK = $AVG_TIME_FIND_BLOCK centiseconds"
+# echo ""
+# echo "TIME_first_in_poll_MN_IN_QUEUE = $TIME_first_in_poll_MN_IN_QUEUE sec"
+# echo "TIME_myMN_LAST_PAY_to_POOL = $TIME_myMN_LAST_PAY_to_POOL sec"
+# echo ""
+# echo "myMN_LAST_PAID_EPOCH = $myMN_LAST_PAID_EPOCH sec"
+# echo "myMN_LAST_SEEN_EPOCH = $myMN_LAST_SEEN_EPOCH sec"
+# echo "NOW_EPOCH = $NOW_EPOCH sec"
+# echo ""
+# echo "TIME_myMN_LAST_PAID_AGO = $TIME_myMN_LAST_PAID_AGO sec"
+# echo "TIME_myMN_IN_QUEUE = $TIME_myMN_IN_QUEUE sec"
+# echo "TIME_myMN_LAST_SEEN_AGO = $TIME_myMN_LAST_SEEN_AGO sec"
+# echo "TIME_myMN_to_POOL = $TIME_myMN_to_POOL sec"
+# echo ""
+# echo "TSTAMP_myMN_LAST_PAID_AGO = $timestampMNLPA"
+# echo "TSTAMP_myMN_IN_QUEUE = $timestampMNTiQ"
+# echo "TSTAMP_myMN_to_POOL = $TSTAMP_myMN_to_POOL"
+# echo ""
+# echo ""
