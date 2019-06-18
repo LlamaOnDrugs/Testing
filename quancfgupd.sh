@@ -5,6 +5,12 @@ read -p "How many installs?" VAR
 
 installs="$VAR"
 
+dupmn iplist
+
+read -p "Starting IP?: " IPVAR
+
+startip="$IPVAR"
+
 function conf_set_value() {
 	# <$1 = conf_file> | <$2 = key> | <$3 = value> | [$4 = force_create]
 	#[[ $(grep -ws "^$2" "$1" | cut -d "=" -f1) == "$2" ]] && sed -i "/^$2=/s/=.*/=$3/" "$1" || ([[ "$4" == "1" ]] && echo -e "$2=$3" >> $1)
@@ -20,7 +26,6 @@ function conf_get_value() {
 counter=1
 while [ $counter -le $installs ]
 do
-  $(conf_set_value "/root/.quantisnetcore$counter/quantisnet.conf" "daemon"		"0" 1)
-  $(conf_set_value "/root/.quantisnetcore$counter/quantisnet.con" "logtimestamps" "0" 1)
+  $(conf_set_value "/root/.quantisnetcore$counter/quantisnet.conf" "externalip" "$startip$counter" 1)
   ((counter++))
 done
