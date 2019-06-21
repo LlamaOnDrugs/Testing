@@ -26,6 +26,6 @@ function conf_get_value() {
 counter=1
 while [ $counter -le $installs ]
 do
-  $(conf_set_value "/root/.quantisnetcore$counter/quantisnet.conf" "externalip" "$startip$counter" 1)
+  $(conf_set_value "/root/.quantisnetcore$counter/quantisnet.conf" "externalip" "[$startip$counter]:9801" 1)
   ((counter++))
 done
