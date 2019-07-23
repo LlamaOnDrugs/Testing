@@ -3,7 +3,7 @@
 TMP_FOLDER=$(mktemp -d)
 CONFIG_FILE='civitas.conf'
 CONFIGFOLDER='/root/.civitas'
-TARFOLDER='civitas-1.2.2/'
+TARFOLDER='civitas-1.2.2/bin/'
 COIN_PATH='/usr/local/bin/'
 COIN_DAEMON='civitasd'
 COIN_CLI='civitas-cli'
