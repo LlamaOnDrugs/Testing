@@ -25,6 +25,7 @@ function download_node() {
   cd $TMP_FOLDER
   wget $COIN_TGZ
   tar xvzf $COIN_ZIP -C $COIN_PATH >/dev/null 2>&1
+  cd
   mv $COIN_PATH$TARFOLDER$COIN_DAEMON $COIN_PATH
   mv $COIN_PATH$TARFOLDER$COIN_CLI $COIN_PATH
   rm -r $COIN_PATH$TARFOLDER
