@@ -3,6 +3,7 @@
 TMP_FOLDER=$(mktemp -d)
 CONFIG_FILE='civitas.conf'
 CONFIGFOLDER='/root/.civitas'
+TARFOLDER='civitas-1.2.2'
 COIN_PATH='/usr/local/bin/'
 COIN_DAEMON='civitasd'
 COIN_CLI='civitas-cli'
@@ -24,6 +25,9 @@ function download_node() {
   cd $TMP_FOLDER
   wget $COIN_TGZ
   tar xvzf $COIN_ZIP -C $COIN_PATH >/dev/null 2>&1
+  mv $COIN_PATH$TARFOLDER$COIN_DAEMON $COIN_PATH
+  mv $COIN_PATH$TARFOLDER$COIN_CLI $COIN_PATH
+  rm -r $COIN_PATH$TARFOLDER
   compile_error
   chmod +x $COIN_PATH$COIN_DAEMON $COIN_PATH$COIN_CLI
   cd - >/dev/null 2>&1
