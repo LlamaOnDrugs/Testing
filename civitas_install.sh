@@ -24,11 +24,9 @@ function download_node() {
   echo -e "Prepare to download $COIN_NAME binaries"
   cd $TMP_FOLDER
   wget $COIN_TGZ
-  tar xvzf $COIN_ZIP -C $COIN_PATH >/dev/null 2>&1
-  cd
-  mv $COIN_PATH$TARFOLDER$COIN_DAEMON $COIN_PATH
-  mv $COIN_PATH$TARFOLDER$COIN_CLI $COIN_PATH
-  rm -r $COIN_PATH$TARFOLDER
+  tar xvzf $COIN_ZIP >/dev/null 2>&1
+  mv $TARFOLDER$COIN_DAEMON $COIN_PATH
+  mv $TARFOLDER$COIN_CLI $COIN_PATH
   compile_error
   chmod +x $COIN_PATH$COIN_DAEMON $COIN_PATH$COIN_CLI
   cd - >/dev/null 2>&1
