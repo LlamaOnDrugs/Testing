@@ -222,7 +222,7 @@ function important_information() {
  echo -e "VPS_IP:PORT ${GREEN}$NODEIP:$COIN_PORT${NC}"
  echo -e "MASTERNODE PRIVATEKEY is: ${GREEN}$COINKEY${NC}"
  echo -e "Please check ${GREEN}$COIN_NAME${NC} is running with the following command: ${GREEN}systemctl status $COIN_NAME.service${NC}"
- echo -e "For check masternode status just use: ${GREEN} CARDbuyers-cli masternode status"
+ echo -e "For check masternode status just use: ${GREEN} civitas-cli masternode status"
  echo -e "${CYAN} Thanks for supporting us, if you need help do not hesitate to ask us."
  echo -e "${NC} Never give your logs for teamviewer or other, be careful !!"
  echo -e "================================================================================================================================"
