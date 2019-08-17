@@ -73,7 +73,6 @@ echo "listen=1" >> $CONF_DIR/$CONF_FILE
 echo "server=1" >> $CONF_DIR/$CONF_FILE
 echo "daemon=1" >> $CONF_DIR/$CONF_FILE
 echo "logtimestamps=1" >> $CONF_DIR/$CONF_FILE
-echo "masternode=1" >> $CONF_DIR/$CONF_FILE
 echo "port=$PORT" >> $CONF_DIR/$CONF_FILE
 
 quantisnetd -daemon
@@ -82,6 +81,7 @@ PRIVKEY=$(quantisnet-cli masternode genkey)
 quantisnet-cli stop
 killall -9 quantisnetd
 
+echo "masternode=1" >> $CONF_DIR/$CONF_FILE
 echo "masternodeaddr=$IP:$PORT" >> $CONF_DIR/$CONF_FILE
 echo "masternodeprivkey=$PRIVKEY" >> $CONF_DIR/$CONF_FILE
 echo "externalip=$IP:$PORT" >> $CONF_DIR/$CONF_FILE
